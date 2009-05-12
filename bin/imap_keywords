@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'imap_processor/keywords'
+
+IMAPProcessor::Keywords.run ARGV
+
