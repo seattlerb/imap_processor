@@ -76,16 +76,18 @@ class IMAPProcessor
   ##
   # Handles processing of +args+ loading defaults from a file in ~ based on
   # +processor_file+.  Extra option defaults can be specified by
-  # +extra_options+.  Yields an option parser instance to add new OptionParser
-  # options to:
+  # +required_options+.  Yields an option parser instance to add new
+  # OptionParser options to:
   #
   #   class MyProcessor < IMAPProcessor
   #     def self.process_args(args)
-  #       extra_options = {
-  #         :MoveTo => nil,
+  #       required_options = {
+  #         :MoveTo => [nil, "MoveTo not set"],
   #       }
   #   
-  #     super __FILE__, args, extra_options do |opts, options|
+  #     super __FILE__, args, required_options do |opts, options|
+  #       opts.banner << "Explain my_processor's executable"
+  #   
   #       opts.on(      "--move=MAILBOX",
   #               "Mailbox to move message to",
   #               "Default: #{options[:MoveTo].inspect}",
@@ -93,11 +95,21 @@ class IMAPProcessor
   #         options[:MoveTo] = mailbox
   #       end
   #     end
+  #   end
 
-  def self.process_args(processor_file, args, extra_options = {}) # :yield: OptionParser
+  def self.process_args(processor_file, args,
+                        required_options = {}) # :yield: OptionParser
     opts_file_name = File.basename processor_file, '.rb'
     opts_file = File.expand_path "~/.#{opts_file_name}"
     options = @@options.dup
+
+    if required_options then
+      required_options.each do |option, (default, message)|
+        raise ArgumentError,
+              "required_options message is missing for #{option}" if
+          default.nil? and message.nil?
+      end
+    end
 
     if File.exist? opts_file then
       unless File.stat(opts_file).mode & 077 == 0 then
@@ -115,21 +127,13 @@ class IMAPProcessor
     options[:Verbose]  ||= false
     options[:Debug]    ||= false
 
-    extra_options.each do |k,(v,m)|
+    required_options.each do |k,(v,m)|
       options[k]       ||= v
     end
 
     opts = OptionParser.new do |opts|
-      opts.banner = <<-EOF
-Usage: #{File.basename $0} [options]
-
-Options may also be set in the options file ~/.#{opts_file_name}
-
-Example ~/.#{opts_file_name}:
-\tHost=mail.example.com
-\tPassword=my password
-
-      EOF
+      opts.program_name = File.basename $0
+      opts.banner = "Usage: #{opts.program_name} [options]\n\n"
 
       opts.separator ''
       opts.separator 'Connection options:'
@@ -232,6 +236,16 @@ Example ~/.#{opts_file_name}:
       end
 
       opts.separator ''
+
+      opts.banner << <<-EOF
+
+Options may also be set in the options file ~/.#{opts_file_name}
+
+Example ~/.#{opts_file_name}:
+\tHost=mail.example.com
+\tPassword=my password
+
+      EOF
     end
 
     opts.parse! args
@@ -241,13 +255,13 @@ Example ~/.#{opts_file_name}:
     if options[:Host].nil? or
        options[:Password].nil? or
        options[:Boxes].nil? or
-       extra_options.any? { |k,(v,m)| options[k].nil? and m } then
+       required_options.any? { |k,(v,m)| options[k].nil? } then
       $stderr.puts opts
       $stderr.puts
       $stderr.puts "Host name not set" if options[:Host].nil?
       $stderr.puts "Password not set"  if options[:Password].nil?
       $stderr.puts "Boxes not set"     if options[:Boxes].nil?
-      extra_options.each do |option_name, (option_value, missing_message)|
+      required_options.each do |option_name, (option_value, missing_message)|
         $stderr.puts missing_message if options[option_name].nil?
       end
       exit 1
@@ -257,7 +271,7 @@ Example ~/.#{opts_file_name}:
   end
 
   ##
-  # Sets up an IMAP processor's options then runs.
+  # Sets up an IMAP processor's options then calls its \#run method.
 
   def self.run(args = ARGV, &block)
     options = process_args args

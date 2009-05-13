@@ -8,6 +8,9 @@ IMAPProcessor is a client for processing messages on an IMAP server.  It
 provides some basic mechanisms for connecting to an IMAP server, determining
 capabilities and handling messages.
 
+IMAPProcessor ships with the imap_keywords executable which can query an IMAP
+server for keywords set on messages in mailboxes.
+
 == FEATURES/PROBLEMS:
 
 * Connection toolkit
@@ -16,7 +19,7 @@ capabilities and handling messages.
 
 == SYNOPSIS:
 
-See IMAPProcessor for details, IMAPToRSS for an example
+See IMAPProcessor and IMAPProcessor::Keywords for details
 
 == REQUIREMENTS:
 
@@ -30,7 +33,7 @@ See IMAPProcessor for details, IMAPToRSS for an example
 
 (The MIT License)
 
-Copyright (c) 2009 FIX
+Copyright (c) 2009 Eric Hodel
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

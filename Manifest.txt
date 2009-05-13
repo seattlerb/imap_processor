@@ -3,4 +3,7 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
+bin/imap_keywords
 lib/imap_processor.rb
+lib/imap_processor/keywords.rb
+lib/imap_sasl_plain.rb
