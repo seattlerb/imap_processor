@@ -178,7 +178,7 @@ class IMAPProcessor
 
       opts.on("-p", "--password PASSWORD",
               "IMAP password",
-              "Default: Read from ~/.imap_cleanse",
+              "Default: Read from ~/.#{opts_file_name}",
               "Options file name: Password") do |password|
         options[:Password] = password
       end

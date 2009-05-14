@@ -1,6 +1,10 @@
+=== 1.0.1 / ??
+
+* 1 bug fix
+  * Show correct name of options file for --password help
+
 === 1.0.0 / 2009-05-12
 
 * 1 major enhancement
-
   * Birthday!
 
