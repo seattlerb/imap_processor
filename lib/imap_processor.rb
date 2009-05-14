@@ -294,7 +294,7 @@ Example ~/.#{opts_file_name}:
 
   def initialize(options)
     @options = options
-    @verbose = true
+    @verbose = options[:Verbose]
     @boxes = options[:Boxes]
     Net::IMAP.debug = options[:Debug]
   end
