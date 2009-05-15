@@ -19,7 +19,7 @@ class IMAPProcessor
   ##
   # The version of IMAPProcessor you are using
 
-  VERSION = '1.0'
+  VERSION = '1.0.1'
 
   ##
   # A Connection Struct that has +imap+ and +capability+ accessors
