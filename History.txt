@@ -1,3 +1,9 @@
+=== 1.1 / 2009-05-18
+
+* 1 minor enhancement
+  * IMAPProcessor#each_message allows messages to be omitted from the returned
+    uid list (skipped)
+
 === 1.0.1 / 2009-05-15
 
 * 2 bug fix

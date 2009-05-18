@@ -19,7 +19,7 @@ class IMAPProcessor
   ##
   # The version of IMAPProcessor you are using
 
-  VERSION = '1.0.1'
+  VERSION = '1.1'
 
   ##
   # A Connection Struct that has +imap+ and +capability+ accessors
@@ -336,6 +336,9 @@ Example ~/.#{opts_file_name}:
   # If there's an exception raised during handling a message the subject,
   # message-id and inspected body are logged.
   #
+  # If the block returns nil or false, the message is considered skipped and
+  # its uid is not returned in the uid list.  (Hint: next false unless ...)
+  #
   # Returns the uids of successfully handled messages.
 
   def each_message(uids, type) # :yields: TMail::Mail
@@ -344,12 +347,14 @@ Example ~/.#{opts_file_name}:
     uids = []
 
     each_part parts, true do |uid, message|
+      skip = false
+
       mail = TMail::Mail.parse message
 
       begin
-        yield uid, mail
+        skip = yield uid, mail
 
-        uids << uid
+        uids << uid unless skip
       rescue => e
         log e.message
         puts "\t#{e.backtrace.join "\n\t"}" unless $DEBUG # backtrace at bottom
