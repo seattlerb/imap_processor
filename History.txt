@@ -1,3 +1,8 @@
+=== 1.1.1 / 2009-05-19
+
+* 1 bug fix
+  * Got the skip test backwards
+
 === 1.1 / 2009-05-18
 
 * 1 minor enhancement

@@ -19,7 +19,7 @@ class IMAPProcessor
   ##
   # The version of IMAPProcessor you are using
 
-  VERSION = '1.1'
+  VERSION = '1.1.1'
 
   ##
   # A Connection Struct that has +imap+ and +capability+ accessors
@@ -352,9 +352,9 @@ Example ~/.#{opts_file_name}:
       mail = TMail::Mail.parse message
 
       begin
-        skip = yield uid, mail
+        success = yield uid, mail
 
-        uids << uid unless skip
+        uids << uid if success
       rescue => e
         log e.message
         puts "\t#{e.backtrace.join "\n\t"}" unless $DEBUG # backtrace at bottom
