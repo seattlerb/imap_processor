@@ -33,7 +33,7 @@ previously set keywords.
       end
 
       opts.on(      "--[no-]list",
-              "Don't display messages") do |list|
+              "Display messages") do |list|
         options[:List] = list
       end
 
@@ -47,11 +47,11 @@ previously set keywords.
   def initialize(options)
     super
 
-    @add = options[:Add]
-    @delete = options[:Delete]
+    @add      = options[:Add]
+    @delete   = options[:Delete]
     @keywords = options[:Keywords]
-    @not = options[:Not] ? 'NOT' : nil
-    @list = options[:List]
+    @not      = options[:Not] ? 'NOT' : nil
+    @list     = options[:List]
 
     if @add and @delete then
       raise OptionParser::InvalidOption, "--add and --delete are exclusive"
@@ -141,11 +141,8 @@ previously set keywords.
     responses.each do |res|
       header = res.attr['BODY[HEADER]']
 
-      header =~ /^Subject: (.*)/i
-      puts "Subject: #{$1}"
-
-      header =~ /^Message-Id: (.*)/i
-      puts "Message-Id: #{$1}"
+      puts header[/^Subject: .*/i]
+      puts header[/^Message-Id: .*/i]
 
       flags = res.attr['FLAGS'].map { |flag| flag.inspect }.join ', '
 

@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'imap_processor/archive'
+
+IMAPProcessor::Archive.run ARGV

@@ -100,6 +100,7 @@ class IMAPProcessor
   def self.process_args(processor_file, args,
                         required_options = {}) # :yield: OptionParser
     opts_file_name = File.basename processor_file, '.rb'
+    opts_file_name = "imap_#{opts_file_name}" unless opts_file_name =~ /^imap_/
     opts_file = File.expand_path "~/.#{opts_file_name}"
     options = @@options.dup
 
@@ -379,7 +380,7 @@ Example ~/.#{opts_file_name}:
       sequence.unshift "BODY[#{section}.MIME]" unless section == 'TEXT'
       sequence.unshift 'BODY[HEADER]' if header
 
-      body = @imap.fetch(uid, sequence).first
+      body = imap.fetch(uid, sequence).first
 
       sequence = sequence.map { |item| body.attr[item] }
 
@@ -411,7 +412,7 @@ Example ~/.#{opts_file_name}:
   def mime_parts(uids, mime_type)
     media_type, subtype = mime_type.upcase.split('/', 2)
 
-    structures = @imap.fetch uids, 'BODYSTRUCTURE'
+    structures = imap.fetch uids, 'BODYSTRUCTURE'
 
     structures.zip(uids).map do |body, uid|
       section = nil
@@ -437,11 +438,45 @@ Example ~/.#{opts_file_name}:
   end
 
   ##
+  # Create the specified mailbox if it doesn't exist
+
+  def create_mailbox name
+    begin
+      log "EXAMINE #{name}"
+      imap.examine name
+    rescue Net::IMAP::NoResponseError
+      log "CREATE #{name}"
+      imap.create name
+    end
+  end
+
+  ##
+  # Delete and expunge the specified uids.
+
+  def delete_messages uids, expunge = true
+    log "DELETING [...#{uids.size} uids]"
+    imap.store uids, '+FLAGS', [:Deleted]
+    if expunge then
+      log "EXPUNGE"
+      imap.expunge
+    end
+  end
+
+  ##
+  # Move the specified uids to a new destination and delete them.
+
+  def move_messages uids, destination, expunge = true
+    return if uids.empty?
+    log "COPY [...#{uids.size} uids]"
+    imap.copy uids, destination
+    delete_messages uids, expunge
+  end
+
+  ##
   # Did the user set --verbose?
 
   def verbose?
     @verbose
   end
-
 end
 
