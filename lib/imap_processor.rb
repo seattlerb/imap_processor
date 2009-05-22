@@ -67,7 +67,7 @@ class IMAPProcessor
       opts.on(      "--move=MAILBOX",
               "Mailbox to move message to",
               "Default: #{options[:MoveTo].inspect}",
-              "Options file name: MoveTo") do |mailbox|
+              "Options file name: :MoveTo") do |mailbox|
         options[:MoveTo] = mailbox
       end
     end
@@ -91,11 +91,13 @@ class IMAPProcessor
   #       opts.on(      "--move=MAILBOX",
   #               "Mailbox to move message to",
   #               "Default: #{options[:MoveTo].inspect}",
-  #               "Options file name: MoveTo") do |mailbox|
+  #               "Options file name: :MoveTo") do |mailbox|
   #         options[:MoveTo] = mailbox
   #       end
   #     end
   #   end
+  #
+  # NOTE:  You can add a --move option using ::add_move
 
   def self.process_args(processor_file, args,
                         required_options = {}) # :yield: OptionParser
@@ -142,28 +144,28 @@ class IMAPProcessor
       opts.on("-H", "--host HOST",
               "IMAP server host",
               "Default: #{options[:Host].inspect}",
-              "Options file name: Host") do |host|
+              "Options file name: :Host") do |host|
         options[:Host] = host
       end
 
       opts.on("-P", "--port PORT",
               "IMAP server port",
               "Default: The correct port SSL/non-SSL mode",
-              "Options file name: Port") do |port|
+              "Options file name: :Port") do |port|
         options[:Port] = port
       end
 
       opts.on("-s", "--[no-]ssl",
               "Use SSL for IMAP connection",
               "Default: #{options[:SSL].inspect}",
-              "Options file name: SSL") do |ssl|
+              "Options file name: :SSL") do |ssl|
         options[:SSL] = ssl
       end
 
       opts.on(      "--[no-]debug",
               "Display Net::IMAP debugging info",
               "Default: #{options[:Debug].inspect}",
-              "Options file name: Debug") do |debug|
+              "Options file name: :Debug") do |debug|
         options[:Debug] = debug
       end
 
@@ -173,14 +175,14 @@ class IMAPProcessor
       opts.on("-u", "--username USERNAME",
               "IMAP username",
               "Default: #{options[:Username].inspect}",
-              "Options file name: Username") do |username|
+              "Options file name: :Username") do |username|
         options[:Username] = username
       end
 
       opts.on("-p", "--password PASSWORD",
               "IMAP password",
               "Default: Read from ~/.#{opts_file_name}",
-              "Options file name: Password") do |password|
+              "Options file name: :Password") do |password|
         options[:Password] = password
       end
 
@@ -191,7 +193,7 @@ class IMAPProcessor
               "Authentication type will be auto-",
               "discovered",
               "Default: #{options[:Auth].inspect}",
-              "Options file name: Auth") do |auth|
+              "Options file name: :Auth") do |auth|
         options[:Auth] = auth
       end
 
@@ -201,7 +203,7 @@ class IMAPProcessor
       opts.on("-r", "--root ROOT",
               "Root of mailbox hierarchy",
               "Default: #{options[:Root].inspect}",
-              "Options file name: Root") do |root|
+              "Options file name: :Root") do |root|
         options[:Root] = root
       end
 
@@ -209,14 +211,14 @@ class IMAPProcessor
               "Comma-separated list of mailbox names",
               "to search",
               "Default: #{options[:Boxes].inspect}",
-              "Options file name: Boxes") do |boxes|
+              "Options file name: :Boxes") do |boxes|
         options[:Boxes] = boxes
       end
 
       opts.on("-v", "--[no-]verbose",
               "Be verbose",
               "Default: #{options[:Verbose].inspect}",
-              "Options file name: Verbose") do |verbose|
+              "Options file name: :Verbose") do |verbose|
         options[:Verbose] = verbose
       end
 

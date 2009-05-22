@@ -9,6 +9,9 @@
   * Added IMAPProcessor#move_messages
   * Disabled verification of SSL certs for 1.9
 
+* 1 bug fix
+  * Fixed options file names, they should be Symbol keys
+
 === 1.1.1 / 2009-05-19
 
 * 1 bug fix
