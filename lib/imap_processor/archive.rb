@@ -85,18 +85,12 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
   def show_messages(uids)
     return unless list
 
-    responses = imap.fetch uids, [
-      'BODY.PEEK[HEADER]',
-      'FLAGS'
-    ]
+    fetch_data = 'BODY.PEEK[HEADER.FIELDS (DATE SUBJECT MESSAGE-ID)]'
+    responses = imap.fetch uids.first, fetch_data
+    fetch_data.sub! '.PEEK', '' # stripped by server
 
     responses.each do |res|
-      header = res.attr['BODY[HEADER]']
-
-      puts header[/^Date: .*/i]
-      puts header[/^Subject: .*/i]
-      puts header[/^Message-Id: .*/i]
-      puts
+      puts res.attr[fetch_data]
     end
   end
 end

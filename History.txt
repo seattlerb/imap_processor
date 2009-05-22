@@ -1,3 +1,14 @@
+=== 1.2 / 2009-05-??
+
+* 1 major enhancement
+  * imap_archive which archives old mail to dated mailboxes
+
+* N minor enhancements
+  * Added IMAPProcessor#create_mailbox
+  * Added IMAPProcessor#delete_messages
+  * Added IMAPProcessor#move_messages
+  * Disabled verification of SSL certs for 1.9
+
 === 1.1.1 / 2009-05-19
 
 * 1 bug fix

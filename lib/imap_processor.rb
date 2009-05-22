@@ -308,7 +308,7 @@ Example ~/.#{opts_file_name}:
   # Returns a Connection object.
 
   def connect(host, port, ssl, username, password, auth = nil)
-    imap = Net::IMAP.new host, port, ssl
+    imap = Net::IMAP.new host, port, ssl, nil, false
     log "Connected to imap://#{host}:#{port}/"
 
     capability = imap.capability
@@ -438,7 +438,8 @@ Example ~/.#{opts_file_name}:
   end
 
   ##
-  # Create the specified mailbox if it doesn't exist
+  # Create the mailbox +name+ if it doesn't exist.  Note that this will SELECT
+  # the mailbox if it exists.
 
   def create_mailbox name
     begin
@@ -451,7 +452,7 @@ Example ~/.#{opts_file_name}:
   end
 
   ##
-  # Delete and expunge the specified uids.
+  # Delete and +expunge+ the specified +uids+.
 
   def delete_messages uids, expunge = true
     log "DELETING [...#{uids.size} uids]"
@@ -463,7 +464,8 @@ Example ~/.#{opts_file_name}:
   end
 
   ##
-  # Move the specified uids to a new destination and delete them.
+  # Move the specified +uids+ to a new +destination+ then delete and +expunge+
+  # them.
 
   def move_messages uids, destination, expunge = true
     return if uids.empty?

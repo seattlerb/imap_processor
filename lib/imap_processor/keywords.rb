@@ -134,15 +134,14 @@ previously set keywords.
     return unless @list
 
     responses = @imap.fetch uids, [
-      'BODY.PEEK[HEADER]',
+      Net::IMAP::RawData.new('BODY.PEEK[HEADER.FIELDS (SUBJECT MESSAGE-ID)]'),
       'FLAGS'
     ]
 
     responses.each do |res|
-      header = res.attr['BODY[HEADER]']
+      header = res.attr['BODY[HEADER.FIELDS (SUBJECT MESSAGE-ID)]']
 
-      puts header[/^Subject: .*/i]
-      puts header[/^Message-Id: .*/i]
+      puts header.chomp
 
       flags = res.attr['FLAGS'].map { |flag| flag.inspect }.join ', '
 
