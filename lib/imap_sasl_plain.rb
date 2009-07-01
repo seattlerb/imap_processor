@@ -1,28 +1,4 @@
-require 'time'
 require 'net/imap'
-
-class Time
-
-  ##
-  # Formats this Time as an IMAP-style date.
-
-  def imapdate
-    strftime '%d-%b-%Y'
-  end
-
-  ##
-  # Formats this Time as an IMAP-style datetime.
-  #
-  # RFC 2060 doesn't specify the format of its times.  Unfortunately it is
-  # almost but not quite RFC 822 compliant.
-  #--
-  # Go Mr. Leatherpants!
-
-  def imapdatetime
-    strftime '%d-%b-%Y %H:%M %Z'
-  end
-
-end
 
 ##
 # RFC 2595 PLAIN Authenticator for Net::IMAP.  Only for use with SSL (but not
@@ -56,10 +32,9 @@ class Net::IMAP::PlainAuthenticator
     @password = password
   end
 
-end
+end unless defined? Net::IMAP::PlainAuthenticator
 
 if defined? OpenSSL then
   Net::IMAP.add_authenticator 'PLAIN', Net::IMAP::PlainAuthenticator
 end
-
 
