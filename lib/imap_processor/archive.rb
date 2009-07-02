@@ -58,7 +58,6 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
   def run
     @boxes.each do |mailbox|
       destination = "#{mailbox}.#{last_month}"
-      create_mailbox destination
 
       log "SELECT #{mailbox}"
       response = imap.select mailbox

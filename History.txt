@@ -1,9 +1,10 @@
-=== 1.2 / 2009-05-??
+=== 1.2 / 2009-06-02
 
-* 1 major enhancement
+* 2 major enhancement
   * imap_archive which archives old mail to dated mailboxes
+  * imap_idle which lists messages that were added or expunged from a mailbox
 
-* N minor enhancements
+* 4 minor enhancements
   * Added IMAPProcessor#create_mailbox
   * Added IMAPProcessor#delete_messages
   * Added IMAPProcessor#move_messages
