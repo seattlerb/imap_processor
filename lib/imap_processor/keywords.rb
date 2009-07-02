@@ -60,8 +60,7 @@ previously set keywords.
             "--add and --delete require --keywords"
     end
 
-    connection = connect options[:Host], options[:Port], options[:SSL],
-                         options[:Username], options[:Password], options[:Auth]
+    connection = connect
 
     @imap = connection.imap
   end

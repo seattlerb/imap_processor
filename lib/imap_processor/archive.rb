@@ -33,8 +33,7 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
     @list = options[:List]
     @move = options[:Move]
 
-    connection = connect(options[:Host],     options[:Port],     options[:SSL],
-                         options[:Username], options[:Password], options[:Auth])
+    connection = connect
 
     @imap = connection.imap
   end
@@ -79,19 +78,5 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
     end
   end
 
-  ##
-  # Displays messages in +uids+ and their keywords
-
-  def show_messages(uids)
-    return unless list
-
-    fetch_data = 'BODY.PEEK[HEADER.FIELDS (DATE SUBJECT MESSAGE-ID)]'
-    responses = imap.fetch uids.first, fetch_data
-    fetch_data.sub! '.PEEK', '' # stripped by server
-
-    responses.each do |res|
-      puts res.attr[fetch_data]
-    end
-  end
 end
 

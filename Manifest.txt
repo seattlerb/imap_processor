@@ -3,7 +3,14 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
+bin/imap_archive
+bin/imap_idle
 bin/imap_keywords
 lib/imap_processor.rb
+lib/imap_processor/archive.rb
+lib/imap_processor/idle.rb
 lib/imap_processor/keywords.rb
 lib/imap_sasl_plain.rb
+lib/net/imap/date.rb
+lib/net/imap/idle.rb
+test/test_imap_processor.rb

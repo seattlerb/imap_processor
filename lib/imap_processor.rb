@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'optparse'
 require 'net/imap'
+require 'net/imap/date'
 require 'imap_sasl_plain'
 
 ##
@@ -20,6 +21,12 @@ class IMAPProcessor
   # The version of IMAPProcessor you are using
 
   VERSION = '1.1.1'
+
+  ##
+  # Base IMAPProcessor error class
+
+  class Error < RuntimeError
+  end
 
   ##
   # A Connection Struct that has +imap+ and +capability+ accessors
@@ -134,7 +141,7 @@ class IMAPProcessor
       options[k]       ||= v
     end
 
-    opts = OptionParser.new do |opts|
+    op = OptionParser.new do |opts|
       opts.program_name = File.basename $0
       opts.banner = "Usage: #{opts.program_name} [options]\n\n"
 
@@ -251,7 +258,7 @@ Example ~/.#{opts_file_name}:
       EOF
     end
 
-    opts.parse! args
+    op.parse! args
 
     options[:Port] ||= options[:SSL] ? 993 : 143
 
@@ -309,7 +316,12 @@ Example ~/.#{opts_file_name}:
   #
   # Returns a Connection object.
 
-  def connect(host, port, ssl, username, password, auth = nil)
+  def connect(host = @options[:Host],
+              port = @options[:Port],
+              ssl = @options[:SSL],
+              username = @options[:Username],
+              password = @options[:Password],
+              auth = @options[:Auth]) # :yields: Connection
     imap = Net::IMAP.new host, port, ssl, nil, false
     log "Connected to imap://#{host}:#{port}/"
 
@@ -329,7 +341,41 @@ Example ~/.#{opts_file_name}:
     imap.authenticate auth, username, password
     log "Logged in as #{username}"
 
-    Connection.new imap, capability
+    connection = Connection.new imap, capability
+
+    if block_given? then
+      begin
+        yield connection
+      ensure
+        connection.imap.logout
+      end
+    else
+      return connection
+    end
+  end
+
+  ##
+  # Create the mailbox +name+ if it doesn't exist.  Note that this will SELECT
+  # the mailbox if it exists.
+
+  def create_mailbox name
+    log "LIST #{name}"
+    list = imap.list '', name
+    return if list
+    log "CREATE #{name}"
+    imap.create name
+  end
+
+  ##
+  # Delete and +expunge+ the specified +uids+.
+
+  def delete_messages uids, expunge = true
+    log "DELETING [...#{uids.size} uids]"
+    imap.store uids, '+FLAGS.SILENT', [:Deleted]
+    if expunge then
+      log "EXPUNGE"
+      imap.expunge
+    end
   end
 
   ##
@@ -440,40 +486,38 @@ Example ~/.#{opts_file_name}:
   end
 
   ##
-  # Create the mailbox +name+ if it doesn't exist.  Note that this will SELECT
-  # the mailbox if it exists.
-
-  def create_mailbox name
-    begin
-      log "EXAMINE #{name}"
-      imap.examine name
-    rescue Net::IMAP::NoResponseError
-      log "CREATE #{name}"
-      imap.create name
-    end
-  end
-
-  ##
-  # Delete and +expunge+ the specified +uids+.
-
-  def delete_messages uids, expunge = true
-    log "DELETING [...#{uids.size} uids]"
-    imap.store uids, '+FLAGS', [:Deleted]
-    if expunge then
-      log "EXPUNGE"
-      imap.expunge
-    end
-  end
-
-  ##
   # Move the specified +uids+ to a new +destination+ then delete and +expunge+
-  # them.
+  # them.  Creates the destination mailbox if it doesn't exist.
 
   def move_messages uids, destination, expunge = true
     return if uids.empty?
     log "COPY [...#{uids.size} uids]"
-    imap.copy uids, destination
+
+    begin
+      imap.copy uids, destination
+    rescue Net::IMAP::NoResponseError => e
+      # ruby-lang bug #1713
+      #raise unless e.response.data.code.name == 'TRYCREATE'
+      create_mailbox destination
+      imap.copy uids, destination
+    end
+
     delete_messages uids, expunge
+  end
+
+  ##
+  # Displays Date, Subject and Message-Id from messages in +uids+
+
+  def show_messages(uids)
+    return if uids.nil? or (Array === uids and uids.empty?)
+
+    fetch_data = 'BODY.PEEK[HEADER.FIELDS (DATE SUBJECT MESSAGE-ID)]'
+    messages = imap.fetch uids, fetch_data
+    fetch_data.sub! '.PEEK', '' # stripped by server
+
+    messages.each do |res|
+      puts res.attr[fetch_data].delete("\r")
+    end
   end
 
   ##
@@ -482,5 +526,6 @@ Example ~/.#{opts_file_name}:
   def verbose?
     @verbose
   end
+
 end
 
