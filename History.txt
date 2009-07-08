@@ -1,6 +1,6 @@
 === 1.2 / 2009-06-02
 
-* 2 major enhancement
+* 2 major enhancements
   * imap_archive which archives old mail to dated mailboxes
   * imap_idle which lists messages that were added or expunged from a mailbox
 
