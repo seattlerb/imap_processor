@@ -3,6 +3,7 @@ require 'optparse'
 require 'net/imap'
 require 'net/imap/date'
 require 'imap_sasl_plain'
+require 'yaml'
 
 ##
 # IMAPProcessor is a client for processing messages on an IMAP server.
@@ -131,7 +132,7 @@ class IMAPProcessor
       options.merge! YAML.load_file(opts_file)
     end
 
-    options[:SSL]      ||= true
+    options[:SSL]        = true unless options.key? :SSL
     options[:Username] ||= ENV['USER']
     options[:Root]     ||= nil
     options[:Verbose]  ||= false
@@ -266,7 +267,7 @@ Example ~/.#{opts_file_name}:
        options[:Password].nil? or
        options[:Boxes].nil? or
        required_options.any? { |k,(v,m)| options[k].nil? } then
-      $stderr.puts opts
+      $stderr.puts op
       $stderr.puts
       $stderr.puts "Host name not set" if options[:Host].nil?
       $stderr.puts "Password not set"  if options[:Password].nil?
@@ -287,6 +288,8 @@ Example ~/.#{opts_file_name}:
     options = process_args args
     client = new(options, &block)
     client.run
+  rescue Interrupt
+    exit
   rescue SystemExit
     raise
   rescue Exception => e
@@ -295,7 +298,7 @@ Example ~/.#{opts_file_name}:
 
     exit 1
   ensure
-    client.imap.logout if client
+    client.imap.logout if client and client.imap
   end
 
   ##

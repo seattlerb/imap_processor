@@ -62,14 +62,12 @@ imap_idle lists messages added or expunged from a mailbox
 
   def show_messages_in(mailbox, uids)
     connect do |connection|
-      @imap = connection.imap
+      imap = connection.imap
 
-      @imap.select mailbox
+      imap.select mailbox
 
       show_messages uids
     end
-  ensure
-    @imap = nil
   end
 
 end
