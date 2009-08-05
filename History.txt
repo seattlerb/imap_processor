@@ -1,3 +1,9 @@
+=== 1.3 / 2009-08-04
+
+* 1 major enhancement
+  * IMAP IDLE support now matches ruby trunk's support.  See Net::IMAP#idle
+    and Net::IMAP#idle_done
+
 === 1.2 / 2009-06-02
 
 * 2 major enhancements
