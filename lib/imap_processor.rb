@@ -149,6 +149,11 @@ class IMAPProcessor
       opts.separator ''
       opts.separator 'Connection options:'
 
+      opts.on_tail("-h", "--help", "Show this message") do                  
+        puts opts                                                           
+        exit                                                                
+      end                                                                   
+
       opts.on("-H", "--host HOST",
               "IMAP server host",
               "Default: #{options[:Host].inspect}",
