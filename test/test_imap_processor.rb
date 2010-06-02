@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'minitest/autorun'
 require 'imap_processor'
 require 'time'
@@ -41,6 +42,8 @@ class TestIMAPProcessor < MiniTest::Unit::TestCase
     @ip.instance_variable_set :@imap, @imap
 
     @delim = @imap.list('', 'INBOX').first.delim
+
+    @NI = Net::IMAP
   end
 
   def teardown
@@ -59,6 +62,40 @@ class TestIMAPProcessor < MiniTest::Unit::TestCase
   test = self.new nil
   test.setup
   test.teardown
+
+  def test_capability
+    res =
+      @NI::UntaggedResponse.new('OK',
+        @NI::ResponseText.new(
+          @NI::ResponseCode.new('CAPABILITY',
+            'IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE AUTH=PLAIN'),
+          'Dovecot ready.'),
+        "OK [CAPABAILITY ...] Dovecot ready.\r\n")
+
+    cap = @ip.capability @imap, res
+
+    assert_equal \
+      %w[IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE AUTH=PLAIN],
+      cap
+  end
+
+  def test_capability_no_cap
+    res =
+      @NI::TaggedResponse.new('RUBY0001', 'OK',
+        @NI::ResponseText.new(nil,
+          'User logged in'),
+        "RUBY0001 OK User logged in\r\n")
+
+    cap = @ip.capability @imap, res
+
+    assert_includes cap, 'IMAP4REV1'
+  end
+
+  def test_capability_no_res
+    cap = @ip.capability @imap
+
+    assert_includes cap, 'IMAP4REV1'
+  end
 
   def test_create_mailbox
     @imap.create "directory#{@delim}"

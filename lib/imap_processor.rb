@@ -318,9 +318,26 @@ Example ~/.#{opts_file_name}:
   end
 
   ##
+  # Extracts capability information for +imap+ from +res+ or by contacting the
+  # server.
+
+  def capability imap, res = nil
+    return imap.capability unless res
+
+    data = res.data
+
+    if data.code and data.code.name == 'CAPABILITY' then
+      data.code.data.split ' '
+    else
+      imap.capability
+    end
+  end
+
+  ##
   # Connects to IMAP server +host+ at +port+ using ssl if +ssl+ is true then
-  # logs in as +username+ with +password+.  IMAPProcessor is only known to
-  # work with PLAIN auth on SSL sockets.
+  # authenticates with +username+ and +password+.  IMAPProcessor is only known
+  # to work with PLAIN auth on SSL sockets.  IMAPProcessor does not support
+  # LOGIN.
   #
   # Returns a Connection object.
 
@@ -333,11 +350,11 @@ Example ~/.#{opts_file_name}:
     imap = Net::IMAP.new host, port, ssl, nil, false
     log "Connected to imap://#{host}:#{port}/"
 
-    capability = imap.capability
+    capabilities = capability imap, imap.greeting
 
-    log "Capabilities: #{capability.join ', '}"
+    log "Capabilities: #{capabilities.join ', '}"
 
-    auth_caps = capability.select { |c| c =~ /^AUTH/ }
+    auth_caps = capabilities.select { |c| c =~ /^AUTH/ }
 
     if auth.nil? then
       raise "Couldn't find a supported auth type" if auth_caps.empty?
@@ -346,10 +363,13 @@ Example ~/.#{opts_file_name}:
 
     auth = auth.upcase
     log "Trying #{auth} authentication"
-    imap.authenticate auth, username, password
+    res = imap.authenticate auth, username, password
     log "Logged in as #{username}"
 
-    connection = Connection.new imap, capability
+    # CAPABILITY may have changed
+    capabilities = capability imap, res
+
+    connection = Connection.new imap, capabilities
 
     if block_given? then
       begin
