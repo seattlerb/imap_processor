@@ -92,15 +92,16 @@ class IMAPProcessor
   #       required_options = {
   #         :MoveTo => [nil, "MoveTo not set"],
   #       }
-  #   
-  #     super __FILE__, args, required_options do |opts, options|
-  #       opts.banner << "Explain my_processor's executable"
-  #   
-  #       opts.on(      "--move=MAILBOX",
-  #               "Mailbox to move message to",
-  #               "Default: #{options[:MoveTo].inspect}",
-  #               "Options file name: :MoveTo") do |mailbox|
-  #         options[:MoveTo] = mailbox
+  #
+  #       super __FILE__, args, required_options do |opts, options|
+  #         opts.banner << "Explain my_processor's executable"
+  #
+  #         opts.on(      "--move=MAILBOX",
+  #                 "Mailbox to move message to",
+  #                 "Default: #{options[:MoveTo].inspect}",
+  #                 "Options file name: :MoveTo") do |mailbox|
+  #           options[:MoveTo] = mailbox
+  #         end
   #       end
   #     end
   #   end
@@ -109,9 +110,10 @@ class IMAPProcessor
 
   def self.process_args(processor_file, args,
                         required_options = {}) # :yield: OptionParser
-    opts_file_name = File.basename processor_file, '.rb'
-    opts_file_name = "imap_#{opts_file_name}" unless opts_file_name =~ /^imap_/
-    opts_file = File.expand_path "~/.#{opts_file_name}"
+    @@opts_file_name = File.basename processor_file, '.rb'
+    @@opts_file_name = "imap_#{@@opts_file_name}" unless
+      @@opts_file_name =~ /^imap_/
+    opts_file = File.expand_path "~/.#{@@opts_file_name}"
     options = @@options.dup
 
     if required_options then
@@ -194,7 +196,7 @@ class IMAPProcessor
 
       opts.on("-p", "--password PASSWORD",
               "IMAP password",
-              "Default: Read from ~/.#{opts_file_name}",
+              "Default: Read from ~/.#{@@opts_file_name}",
               "Options file name: :Password") do |password|
         options[:Password] = password
       end
@@ -255,9 +257,9 @@ class IMAPProcessor
 
       opts.banner << <<-EOF
 
-Options may also be set in the options file ~/.#{opts_file_name}
+Options may also be set in the options file ~/.#{@@opts_file_name}
 
-Example ~/.#{opts_file_name}:
+Example ~/.#{@@opts_file_name}:
 \tHost=mail.example.com
 \tPassword=my password
 
