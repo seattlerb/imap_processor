@@ -4,7 +4,7 @@ require 'imap_processor'
 # Archives old mail on IMAP server by moving it to dated mailboxen.
 
 class IMAPProcessor::Archive < IMAPProcessor
-  attr_reader :list, :move
+  attr_reader :list, :move, :sep
 
   def self.process_args(args)
     required_options = {
@@ -24,6 +24,13 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
       opts.on("--[no-]move", "Move the messages (off by default)") do |move|
         options[:Move] = move
       end
+
+      opts.on("-s", "--sep SEPARATOR",
+              "Mailbox date separator character",
+              "Default: Read from ~/.#{@@opts_file_name}",
+              "Options file name: :Sep") do |sep|
+        options[:Sep] = sep
+      end
     end
   end
 
@@ -32,6 +39,7 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
 
     @list = options[:List]
     @move = options[:Move]
+    @sep  = options[:Sep] || '.'
 
     connection = connect
 
@@ -57,7 +65,7 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
 
   def run
     @boxes.each do |mailbox|
-      destination = "#{mailbox}.#{last_month}"
+      destination = "#{mailbox}#{sep}#{last_month}"
 
       log "SELECT #{mailbox}"
       response = imap.select mailbox
