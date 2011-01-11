@@ -10,4 +10,8 @@ Hoe.spec 'imap_processor' do |ip|
   ip.developer 'Eric Hodel', 'drbrain@segment7.net'
 end
 
+task :irb do
+  sh "irb -Ilib -rimap_processor"
+end
+
 # vim: syntax=Ruby
