@@ -363,10 +363,19 @@ Example ~/.#{@@opts_file_name}:
       auth = auth_caps.first.sub(/AUTH=/, '')
     end
 
-    auth = auth.upcase
-    log "Trying #{auth} authentication"
-    res = imap.authenticate auth, username, password
-    log "Logged in as #{username}"
+    # Net::IMAP supports using AUTHENTICATE with LOGIN, PLAIN, and
+    # CRAM-MD5... if the server reports a different AUTH method, then we
+    # should fall back to using LOGIN
+    if %w( LOGIN PLAIN CRAM-MD5 ).include?( auth.upcase )
+      auth = auth.upcase
+      log "Trying #{auth} authentication"
+      res = imap.authenticate auth, username, password
+      log "Logged in as #{username} using AUTHENTICATE"
+    else
+      log "Trying to authenticate via LOGIN"
+      res = imap.login username, password
+      log "Logged in as #{username} using LOGIN"
+    end
 
     # CAPABILITY may have changed
     capabilities = capability imap, res
