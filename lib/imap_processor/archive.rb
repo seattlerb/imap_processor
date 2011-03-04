@@ -5,12 +5,13 @@ require "time"
 # Archives old mail on IMAP server by moving it to dated mailboxen.
 
 class IMAPProcessor::Archive < IMAPProcessor
-  attr_reader :list, :move, :sep
+  attr_reader :list, :move, :sep, :merge
 
   def self.process_args(args)
     required_options = {
       :List => true,
       :Move => false,
+      :Merge => false,
     }
 
     super __FILE__, args, required_options do |opts, options|
@@ -24,6 +25,10 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
 
       opts.on("--[no-]move", "Move the messages (off by default)") do |move|
         options[:Move] = move
+      end
+
+      opts.on("--[no-]merge", "Merge multiple months into current month (off by default)") do |move|
+        options[:Merge] = move
       end
 
       opts.on("-s", "--sep SEPARATOR",
@@ -41,6 +46,7 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
     @list = options[:List]
     @move = options[:Move]
     @sep  = options[:Sep] || '.'
+    @merge = options[:Merge]
 
     connection = connect
 
@@ -73,6 +79,13 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
 
       next if uids_by_date.empty?
 
+      if merge then
+        latest = uids_by_date.keys.max
+        uids_by_date = {
+          latest => uids_by_date.values.flatten(1)
+        }
+      end
+
       uids_by_date.sort.each do |date, uids|
         next if uids.empty?
         destination = "#{mailbox}#{sep}%4d-%02d" % date
@@ -91,6 +104,8 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
     search = make_search
     log "SEARCH #{search.join ' '}"
     uids = imap.search search
+
+    return {} if uids.empty?
 
     payload = imap.fetch(uids, 'BODY.PEEK[HEADER.FIELDS (DATE)]')
 
