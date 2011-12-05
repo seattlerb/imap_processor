@@ -11,7 +11,7 @@ class IMAPProcessor::Archive < IMAPProcessor
     required_options = {
       :List => true,
       :Move => false,
-      :Split => true,
+      :Split => false,
     }
 
     super __FILE__, args, required_options do |opts, options|
@@ -80,7 +80,10 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
       next if uids_by_date.empty?
 
       unless split then
-        latest = uids_by_date.keys.max
+        today = Time.now
+        d = today - 86400 * today.day
+        latest = [d.year, d.month]
+
         uids_by_date = {
           latest => uids_by_date.values.flatten(1)
         }
@@ -120,3 +123,4 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
     }
   end
 end
+
