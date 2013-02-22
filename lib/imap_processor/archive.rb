@@ -114,7 +114,8 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
 
     mail = Hash[uids.zip(payload).map { |uid, m|
       date = m.attr["BODY[HEADER.FIELDS (DATE)]"].strip.split(/:\s*/, 2).last
-      [uid, Time.parse(date)]
+      date = Time.parse(date) rescue Time.now
+      [uid, date]
     }]
 
     mail.keys.group_by { |uid|
@@ -123,4 +124,3 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
     }
   end
 end
-
