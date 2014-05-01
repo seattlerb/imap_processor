@@ -4,13 +4,13 @@ require 'rubygems'
 require 'hoe'
 
 Hoe.plugin :seattlerb
+Hoe.plugin :rdoc
 
-Hoe.spec 'imap_processor' do |ip|
-  ip.developer 'Eric Hodel', 'drbrain@segment7.net'
-end
+Hoe.spec 'imap_processor' do
+  developer 'Eric Hodel', 'drbrain@segment7.net'
+  developer 'Ryan Davis', 'ryand-ruby@zenspider.com'
 
-task :irb do
-  sh "irb -Ilib -rimap_processor"
+  license "MIT"
 end
 
 # vim: syntax=Ruby
