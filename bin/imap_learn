@@ -1,0 +1,5 @@
+#!/usr/local/bin/ruby -w
+
+require 'imap_processor/learn'
+
+IMAPProcessor::Learn.run
