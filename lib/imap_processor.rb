@@ -150,7 +150,7 @@ class IMAPProcessor
       options[:Verbose]  ||= false
       options[:Debug]    ||= false
 
-      required_options.each do |k,(v,m)|
+      required_options.each do |k,(v,_)|
         options[k]       ||= v
       end
 
@@ -297,7 +297,7 @@ Example ~/.#{@@opts_file_name}:
         $stderr.puts "Host name not set" if options[:Host].nil?
         $stderr.puts "Password not set"  if options[:Password].nil?
         $stderr.puts "Boxes not set"     if options[:Boxes].nil?
-        required_options.each do |option_name, (option_value, missing_message)|
+        required_options.each do |option_name, (_, missing_message)|
           $stderr.puts missing_message if options[option_name].nil?
         end
         exit 1
@@ -458,8 +458,6 @@ Example ~/.#{@@opts_file_name}:
     uids = []
 
     each_part parts, true do |uid, message|
-      skip = false
-
       mail = TMail::Mail.parse message
 
       begin
@@ -557,7 +555,7 @@ Example ~/.#{@@opts_file_name}:
 
     begin
       imap.copy uids, destination
-    rescue Net::IMAP::NoResponseError => e
+    rescue Net::IMAP::NoResponseError
       # ruby-lang bug #1713
       #raise unless e.response.data.code.name == 'TRYCREATE'
       create_mailbox destination
