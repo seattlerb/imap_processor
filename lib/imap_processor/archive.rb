@@ -55,7 +55,7 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
 
   def the_first
     t = Time.now
-    the_first = Time.local(t.year, t.month, 1)
+    Time.local(t.year, t.month, 1)
   end
 
   def last_month
@@ -73,7 +73,7 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
   def run
     @boxes.each do |mailbox|
       log "SELECT #{mailbox}"
-      response = imap.select mailbox
+      imap.select mailbox
 
       uids_by_date = self.uids_by_date
 
