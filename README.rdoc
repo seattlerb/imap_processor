@@ -8,10 +8,17 @@ IMAPProcessor is a client for processing messages on an IMAP server.  It
 provides some basic mechanisms for connecting to an IMAP server, determining
 capabilities and handling messages.
 
-IMAPProcessor ships with the executables imap_keywords which can query an IMAP
-server for keywords set on messages in mailboxes, imap_idle which can show new
-messages in a mailbox and imap_archive which will archive old messages to a
-new mailbox.
+
+IMAPProcessor ships with several executables which can query and
+manipulate IMAP mailboxes in several different ways:
+
+imap_archive  :: Archives old messages to a new dated mailbox.
+imap_cleanse  :: Delete messages older than a certain age in specified mailboxes.
+imap_flag     :: Flag messages to/from certain people.
+imap_idle     :: Shows new messages in a mailbox.
+imap_keywords :: Queries an IMAP server for keywords set on messages
+imap_learn    :: Flags messages based on what you've flagged before.
+imap_mkdir    :: Ensures that certain mailboxes exist.
 
 == FEATURES/PROBLEMS:
 
@@ -21,7 +28,7 @@ new mailbox.
 
 == SYNOPSIS:
 
-See IMAPProcessor and IMAPProcessor::Keywords for details
+Run any command with --help for details.
 
 == REQUIREMENTS:
 
@@ -35,7 +42,7 @@ See IMAPProcessor and IMAPProcessor::Keywords for details
 
 (The MIT License)
 
-Copyright (c) 2009 Eric Hodel
+Copyright (c) Eric Hodel, Ryan Davis, Seattle.rb
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
