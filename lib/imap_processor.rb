@@ -15,6 +15,11 @@ require 'yaml'
 # * An initialize method that connects to an IMAP server and sets the @imap
 #   instance variable
 # * A run method that uses the IMAP connection to process messages.
+#
+# Reference:
+#
+#     email: http://www.ietf.org/rfc/rfc0822.txt
+#      imap: http://www.ietf.org/rfc/rfc3501.txt
 
 class IMAPProcessor
 
@@ -114,7 +119,6 @@ class IMAPProcessor
     @@opts_file_name = "imap_#{@@opts_file_name}" unless
       @@opts_file_name =~ /^imap_/
     opts_file = File.expand_path "~/.#{@@opts_file_name}"
-    options = @@options.dup
 
     if required_options then
       required_options.each do |option, (default, message)|
@@ -124,6 +128,8 @@ class IMAPProcessor
       end
     end
 
+    defaults = [{}]
+
     if File.exist? opts_file then
       unless File.stat(opts_file).mode & 077 == 0 then
         $stderr.puts "WARNING! #{opts_file} is group/other readable or writable!"
@@ -131,131 +137,143 @@ class IMAPProcessor
         exit 1
       end
 
-      options.merge! YAML.load_file(opts_file)
+      defaults = YAML.load_file(opts_file)
+      defaults = [defaults] unless Array === defaults
     end
 
-    options[:SSL]        = true unless options.key? :SSL
-    options[:Username] ||= ENV['USER']
-    options[:Root]     ||= nil
-    options[:Verbose]  ||= false
-    options[:Debug]    ||= false
+    defaults.map { |default|
+      options = default.merge @@options.dup
 
-    required_options.each do |k,(v,m)|
-      options[k]       ||= v
-    end
+      options[:SSL]        = true unless options.key? :SSL
+      options[:Username] ||= ENV['USER']
+      options[:Root]     ||= nil
+      options[:Verbose]  ||= false
+      options[:Debug]    ||= false
 
-    op = OptionParser.new do |opts|
-      opts.program_name = File.basename $0
-      opts.banner = "Usage: #{opts.program_name} [options]\n\n"
-
-      opts.separator ''
-      opts.separator 'Connection options:'
-
-      opts.on_tail("-h", "--help", "Show this message") do
-        puts opts
-        exit
+      required_options.each do |k,(v,m)|
+        options[k]       ||= v
       end
 
-      opts.on("-H", "--host HOST",
-              "IMAP server host",
-              "Default: #{options[:Host].inspect}",
-              "Options file name: :Host") do |host|
-        options[:Host] = host
-      end
+      op = OptionParser.new do |opts|
+        opts.program_name = File.basename $0
+        opts.banner = "Usage: #{opts.program_name} [options]\n\n"
 
-      opts.on("-P", "--port PORT",
-              "IMAP server port",
-              "Default: The correct port SSL/non-SSL mode",
-              "Options file name: :Port") do |port|
-        options[:Port] = port
-      end
-
-      opts.on("-s", "--[no-]ssl",
-              "Use SSL for IMAP connection",
-              "Default: #{options[:SSL].inspect}",
-              "Options file name: :SSL") do |ssl|
-        options[:SSL] = ssl
-      end
-
-      opts.on(      "--[no-]debug",
-              "Display Net::IMAP debugging info",
-              "Default: #{options[:Debug].inspect}",
-              "Options file name: :Debug") do |debug|
-        options[:Debug] = debug
-      end
-
-      opts.separator ''
-      opts.separator 'Login options:'
-
-      opts.on("-u", "--username USERNAME",
-              "IMAP username",
-              "Default: #{options[:Username].inspect}",
-              "Options file name: :Username") do |username|
-        options[:Username] = username
-      end
-
-      opts.on("-p", "--password PASSWORD",
-              "IMAP password",
-              "Default: Read from ~/.#{@@opts_file_name}",
-              "Options file name: :Password") do |password|
-        options[:Password] = password
-      end
-
-      authenticators = Net::IMAP.send :class_variable_get, :@@authenticators
-      auth_types = authenticators.keys.sort.join ', '
-      opts.on("-a", "--auth AUTH", auth_types,
-              "IMAP authentication type override",
-              "Authentication type will be auto-",
-              "discovered",
-              "Default: #{options[:Auth].inspect}",
-              "Options file name: :Auth") do |auth|
-        options[:Auth] = auth
-      end
-
-      opts.separator ''
-      opts.separator "IMAP options:"
-
-      opts.on("-r", "--root ROOT",
-              "Root of mailbox hierarchy",
-              "Default: #{options[:Root].inspect}",
-              "Options file name: :Root") do |root|
-        options[:Root] = root
-      end
-
-      opts.on("-b", "--boxes BOXES", Array,
-              "Comma-separated list of mailbox names",
-              "to search",
-              "Default: #{options[:Boxes].inspect}",
-              "Options file name: :Boxes") do |boxes|
-        options[:Boxes] = boxes
-      end
-
-      opts.on("-v", "--[no-]verbose",
-              "Be verbose",
-              "Default: #{options[:Verbose].inspect}",
-              "Options file name: :Verbose") do |verbose|
-        options[:Verbose] = verbose
-      end
-
-      opts.on("-q", "--quiet",
-              "Be quiet") do
-        options[:Verbose] = false
-      end
-
-      if block_given? then
         opts.separator ''
-        opts.separator "#{self} options:"
+        opts.separator 'Connection options:'
 
-        yield opts, options if block_given?
-      end
+        opts.on_tail("-h", "--help", "Show this message") do
+          puts opts
+          exit
+        end
 
-      @@extra_options.each do |block|
-        block.call opts, options
-      end
+        opts.on("-H", "--host HOST",
+                "IMAP server host",
+                "Default: #{options[:Host].inspect}",
+                "Options file name: :Host") do |host|
+          options[:Host] = host
+        end
 
-      opts.separator ''
+        opts.on("-P", "--port PORT",
+                "IMAP server port",
+                "Default: The correct port SSL/non-SSL mode",
+                "Options file name: :Port") do |port|
+          options[:Port] = port
+        end
 
-      opts.banner << <<-EOF
+        opts.on("-s", "--[no-]ssl",
+                "Use SSL for IMAP connection",
+                "Default: #{options[:SSL].inspect}",
+                "Options file name: :SSL") do |ssl|
+          options[:SSL] = ssl
+        end
+
+        opts.on(      "--[no-]debug",
+                "Display Net::IMAP debugging info",
+                "Default: #{options[:Debug].inspect}",
+                "Options file name: :Debug") do |debug|
+          options[:Debug] = debug
+        end
+
+        opts.separator ''
+        opts.separator 'Login options:'
+
+        opts.on("-u", "--username USERNAME",
+                "IMAP username",
+                "Default: #{options[:Username].inspect}",
+                "Options file name: :Username") do |username|
+          options[:Username] = username
+        end
+
+        opts.on("-p", "--password PASSWORD",
+                "IMAP password",
+                "Default: Read from ~/.#{@@opts_file_name}",
+                "Options file name: :Password") do |password|
+          options[:Password] = password
+        end
+
+        authenticators = Net::IMAP.send :class_variable_get, :@@authenticators
+        auth_types = authenticators.keys.sort.join ', '
+        opts.on("-a", "--auth AUTH", auth_types,
+                "IMAP authentication type override",
+                "Authentication type will be auto-",
+                "discovered",
+                "Default: #{options[:Auth].inspect}",
+                "Options file name: :Auth") do |auth|
+          options[:Auth] = auth
+        end
+
+        opts.separator ''
+        opts.separator "IMAP options:"
+
+        opts.on("-r", "--root ROOT",
+                "Root of mailbox hierarchy",
+                "Default: #{options[:Root].inspect}",
+                "Options file name: :Root") do |root|
+          options[:Root] = root
+        end
+
+        opts.on("-b", "--boxes BOXES", Array,
+                "Comma-separated list of mailbox names",
+                "to search",
+                "Default: #{options[:Boxes].inspect}",
+                "Options file name: :Boxes") do |boxes|
+          options[:Boxes] = boxes
+        end
+
+        opts.on("-v", "--[no-]verbose",
+                "Be verbose",
+                "Default: #{options[:Verbose].inspect}",
+                "Options file name: :Verbose") do |verbose|
+          options[:Verbose] = verbose
+        end
+
+        opts.on("-n", "--noop",
+                "Perform no destructive operations",
+                "Best used with the verbose option",
+                "Default: #{options[:Noop].inspect}",
+                "Options file name: Noop") do |noop|
+          options[:Noop] = noop
+        end
+
+        opts.on("-q", "--quiet",
+                "Be quiet") do
+          options[:Verbose] = false
+        end
+
+        if block_given? then
+          opts.separator ''
+          opts.separator "#{self} options:"
+
+          yield opts, options if block_given?
+        end
+
+        @@extra_options.each do |block|
+          block.call opts, options
+        end
+
+        opts.separator ''
+
+        opts.banner << <<-EOF
 
 Options may also be set in the options file ~/.#{@@opts_file_name}
 
@@ -263,38 +281,43 @@ Example ~/.#{@@opts_file_name}:
 \tHost=mail.example.com
 \tPassword=my password
 
-      EOF
-    end
+        EOF
 
-    op.parse! args
+      end # OptionParser.new do
 
-    options[:Port] ||= options[:SSL] ? 993 : 143
+      op.parse! args
 
-    if options[:Host].nil? or
-       options[:Password].nil? or
-       options[:Boxes].nil? or
-       required_options.any? { |k,(v,m)| options[k].nil? } then
-      $stderr.puts op
-      $stderr.puts
-      $stderr.puts "Host name not set" if options[:Host].nil?
-      $stderr.puts "Password not set"  if options[:Password].nil?
-      $stderr.puts "Boxes not set"     if options[:Boxes].nil?
-      required_options.each do |option_name, (option_value, missing_message)|
-        $stderr.puts missing_message if options[option_name].nil?
+      options[:Port] ||= options[:SSL] ? 993 : 143
+
+      # HACK: removed :Boxes -- push down
+      required_keys = [:Host, :Password] + required_options.keys
+      if required_keys.any? { |k| options[k].nil? } then
+        $stderr.puts op
+        $stderr.puts
+        $stderr.puts "Host name not set" if options[:Host].nil?
+        $stderr.puts "Password not set"  if options[:Password].nil?
+        $stderr.puts "Boxes not set"     if options[:Boxes].nil?
+        required_options.each do |option_name, (option_value, missing_message)|
+          $stderr.puts missing_message if options[option_name].nil?
+        end
+        exit 1
       end
-      exit 1
-    end
 
-    return options
+      options
+    } # defaults.map
   end
 
   ##
   # Sets up an IMAP processor's options then calls its \#run method.
 
   def self.run(args = ARGV, &block)
-    options = process_args args
-    client = new(options, &block)
-    client.run
+    client = nil
+    multi_options = process_args args
+
+    multi_options.each do |options|
+      client = new(options, &block)
+      client.run
+    end
   rescue Interrupt
     exit
   rescue SystemExit
@@ -567,4 +590,3 @@ Example ~/.#{@@opts_file_name}:
   end
 
 end
-
