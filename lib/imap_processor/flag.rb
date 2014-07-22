@@ -35,9 +35,10 @@ class IMAPProcessor::Flag < IMAPProcessor::Client
   # and all options from IMAPClient
 
   def initialize(options)
+    super
+
     @flag = options[:flag]
     @boxes = @flag.keys
-    super
   end
 
   def self.process_args(args)

@@ -20,9 +20,10 @@ class IMAPProcessor::Cleanse < IMAPProcessor::Client
   # and all options from IMAPClient
 
   def initialize(options)
+    super
+
     @cleanse = options[:cleanse]
     @boxes = @cleanse.keys
-    super
   end
 
   def self.process_args(args)
