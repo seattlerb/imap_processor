@@ -1,3 +1,28 @@
+=== 1.5 / 2014-08-06
+
+* 3 major enhancements:
+
+  * IMAPProcessor#process_args now returns an array of option hashes.
+  * IMAPProcessor.run now enumerates the array returned from process_args.
+  * You can now specify multiple host configs w/ an array of hashes in your config files.
+
+* 4 minor enhancements:
+
+  * Added --merge to imap_archive.
+  * Added --noop/-n to manually disable destructive actions. (needs to propagate down).
+  * Added imap_cleanse, imap_flag, imap_learn; migrated from IMAPCleanse.
+  * Added support for LOGIN. (bleything)
+
+* 7 bug fixes:
+
+  * Fixed initializers in flag and cleanse.
+  * Fixed odd bug w/ running on empty folders. Never saw that before. odd...
+  * Handle unparsable date entries. Stupid spammers...
+  * Now calculating latest month when not splitting directly from the date
+  * Removed 1.9/2.0 warnings.
+  * Removed dead rubyforge setting in Rakefile
+  * Split was still defaulting to true.
+
 === 1.4 / 2011-01-10
 
 * 6 minor enhancements:
