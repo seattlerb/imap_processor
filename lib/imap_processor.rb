@@ -389,7 +389,7 @@ Example ~/.#{@@opts_file_name}:
     # Net::IMAP supports using AUTHENTICATE with LOGIN, PLAIN, and
     # CRAM-MD5... if the server reports a different AUTH method, then we
     # should fall back to using LOGIN
-    if %w( LOGIN PLAIN CRAM-MD5 ).include?( auth.upcase )
+    if %w( LOGIN PLAIN CRAM-MD5 XOAUTH2 ).include?( auth.upcase )
       auth = auth.upcase
       log "Trying #{auth} authentication"
       res = imap.authenticate auth, username, password
