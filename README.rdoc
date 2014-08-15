@@ -1,13 +1,13 @@
 = imap_processor
 
-* http://seattlerb.rubyforge.org/imap_processor
+home :: https://github.com/seattlerb/imap_processor
+rdoc :: http://docs.seattlerb.org/imap_processor
 
 == DESCRIPTION:
 
 IMAPProcessor is a client for processing messages on an IMAP server.  It
 provides some basic mechanisms for connecting to an IMAP server, determining
 capabilities and handling messages.
-
 
 IMAPProcessor ships with several executables which can query and
 manipulate IMAP mailboxes in several different ways:
