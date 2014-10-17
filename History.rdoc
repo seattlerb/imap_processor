@@ -1,3 +1,9 @@
+=== 1.6 / 2014-10-17
+
+* 1 minor enhancement:
+
+  * Add XOAUTH2 authentication type. (mattbeedle)
+
 === 1.5 / 2014-08-06
 
 * 3 major enhancements:
