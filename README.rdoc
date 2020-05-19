@@ -30,6 +30,27 @@ imap_mkdir    :: Ensures that certain mailboxes exist.
 
 Run any command with --help for details.
 
+== Google Mail:
+
+This is kinda painful. You need to have Two Factor Authentication
+enabled with google, then you need to create an app specific password
+as described here: https://support.google.com/accounts/answer/185833
+
+Then, your config needs to be set up like this:
+
+    - :Host: imap.googlemail.com
+      :SSL: true
+      :Auth: PLAIN
+      :Username: your.address@gmail.com
+      :Password: app-specific-password
+
+Specifically, you need to set auth to PLAIN, and your password needs
+to your app specific password. Run with --debug to help figure
+problems out.
+
+Google is threatening to turn this off at some point and require
+oauth... at which point... I have no idea. I give up I guess.
+
 == REQUIREMENTS:
 
 * IMAP server
