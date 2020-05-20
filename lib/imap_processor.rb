@@ -137,8 +137,7 @@ class IMAPProcessor
         exit 1
       end
 
-      defaults = YAML.load_file(opts_file)
-      defaults = [defaults] unless Array === defaults
+      defaults = Array(YAML.load_file(opts_file))
     end
 
     defaults.map { |default|
@@ -285,7 +284,7 @@ Example ~/.#{@@opts_file_name}:
 
       end # OptionParser.new do
 
-      op.parse! args
+      op.parse! args.dup
 
       options[:Port] ||= options[:SSL] ? 993 : 143
 
@@ -425,7 +424,7 @@ Example ~/.#{@@opts_file_name}:
     list = imap.list '', name
     return if list
     log "CREATE #{name}"
-    imap.create name
+    imap.create name unless noop?
   end
 
   ##
@@ -433,10 +432,10 @@ Example ~/.#{@@opts_file_name}:
 
   def delete_messages uids, expunge = true
     log "DELETING [...#{uids.size} uids]"
-    imap.store uids, '+FLAGS.SILENT', [:Deleted]
+    imap.store uids, '+FLAGS.SILENT', [:Deleted] unless noop?
     if expunge then
       log "EXPUNGE"
-      imap.expunge
+      imap.expunge unless noop?
     end
   end
 
@@ -554,12 +553,12 @@ Example ~/.#{@@opts_file_name}:
     log "COPY [...#{uids.size} uids]"
 
     begin
-      imap.copy uids, destination
+      imap.copy uids, destination unless noop?
     rescue Net::IMAP::NoResponseError
-      # ruby-lang bug #1713
-      #raise unless e.response.data.code.name == 'TRYCREATE'
-      create_mailbox destination
-      imap.copy uids, destination
+      unless noop? then
+        create_mailbox destination
+        imap.copy uids, destination
+      end
     end
 
     delete_messages uids, expunge
@@ -571,12 +570,14 @@ Example ~/.#{@@opts_file_name}:
   def show_messages(uids)
     return if uids.nil? or (Array === uids and uids.empty?)
 
-    fetch_data = 'BODY.PEEK[HEADER.FIELDS (DATE SUBJECT MESSAGE-ID)]'
+    fetch_data = 'BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT)]'
     messages = imap.fetch uids, fetch_data
     fetch_data.sub! '.PEEK', '' # stripped by server
 
+    messages ||= []
+
     messages.each do |res|
-      puts res.attr[fetch_data].delete("\r")
+      puts res.attr[fetch_data].delete("\r").gsub(/^/, "  ")
     end
   end
 
@@ -587,4 +588,10 @@ Example ~/.#{@@opts_file_name}:
     @verbose
   end
 
+  ##
+  # Did the user set --noop?
+
+  def noop?
+    options[:Noop]
+  end
 end

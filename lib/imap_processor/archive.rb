@@ -43,6 +43,8 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
   def initialize(options)
     super
 
+    puts "Archiving #{options[:Host]}"
+
     @list = options[:List]
     @move = options[:Move]
     @sep  = options[:Sep] || '.'
@@ -99,7 +101,7 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
       end
 
       log "EXPUNGE"
-      imap.expunge
+      imap.expunge unless noop?
     end
   end
 
