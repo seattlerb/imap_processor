@@ -1,3 +1,17 @@
+=== 1.7 / 2020-06-04
+
+* 4 minor enhancements:
+
+  * Added #noop? to improve readability.
+  * Documented how to use this with gmail.
+  * Improved imap_archive output by distinguishing hosts.
+  * Improved show_messages output to be cleaner and have better info (from/to).
+
+* 2 bug fixes:
+
+  * Fixed --noop by covering all imap calls that modify w/ checks.
+  * Fixed option processing with multiple accounts by dup'ing args to OptionParser.
+
 === 1.6 / 2014-10-17
 
 * 1 minor enhancement:
