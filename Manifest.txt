@@ -10,6 +10,7 @@ bin/imap_idle
 bin/imap_keywords
 bin/imap_learn
 bin/imap_mkdir
+bin/imap_tidy
 lib/imap_processor.rb
 lib/imap_processor/archive.rb
 lib/imap_processor/cleanse.rb
@@ -19,6 +20,7 @@ lib/imap_processor/idle.rb
 lib/imap_processor/keywords.rb
 lib/imap_processor/learn.rb
 lib/imap_processor/mkdir.rb
+lib/imap_processor/tidy.rb
 lib/imap_sasl_plain.rb
 lib/net/imap/date.rb
 lib/net/imap/idle.rb
