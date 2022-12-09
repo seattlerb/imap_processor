@@ -560,7 +560,7 @@ Example ~/.#{@@opts_file_name}:
   def move_messages uids, destination, expunge = true
     return if uids.empty?
     verb = expunge ? "MOVE" : "COPY"
-    log "%s %d uids to %s:" % [verb, uids.size, destination}
+    log "%s %d uids to %s:" % [verb, uids.size, destination]
 
     begin
       imap.copy uids, destination unless noop?
