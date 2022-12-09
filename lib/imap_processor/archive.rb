@@ -60,11 +60,6 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
     Time.local(t.year, t.month, 1)
   end
 
-  def last_month
-    t = the_first - 1
-    Time.local(t.year, t.month, 1).strftime("%Y-%m")
-  end
-
   ##
   # Makes a SEARCH argument set from +keywords+
 
@@ -82,8 +77,7 @@ imap_archive archives old mail on IMAP server by moving it to dated mailboxen.
       next if uids_by_date.empty?
 
       unless split then
-        today = Time.now
-        d = today - 86400 * today.day
+        d = the_first - 1       # one second back into last month
         latest = [d.year, d.month]
 
         uids_by_date = {
