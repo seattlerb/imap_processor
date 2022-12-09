@@ -5,6 +5,8 @@ require 'net/imap/date'
 require 'imap_sasl_plain'
 require 'yaml'
 
+Net::IMAP::Authenticators.send :public, :authenticators
+
 ##
 # IMAPProcessor is a client for processing messages on an IMAP server.
 #
@@ -210,7 +212,7 @@ class IMAPProcessor
           options[:Password] = password
         end
 
-        authenticators = Net::IMAP.send :class_variable_get, :@@authenticators
+        authenticators = Net::IMAP.authenticators
         auth_types = authenticators.keys.sort.join ', '
         opts.on("-a", "--auth AUTH", auth_types,
                 "IMAP authentication type override",
@@ -351,7 +353,14 @@ Example ~/.#{@@opts_file_name}:
     data = res.data
 
     if data.code and data.code.name == 'CAPABILITY' then
-      data.code.data.split ' '
+      case data.code.data
+      when Array then
+        data.code.data
+      when String then
+        data.code.data.split ' '
+      else
+        raise ArgumentError, "unknown type: #{data.code.data.class}"
+      end
     else
       imap.capability
     end
@@ -550,7 +559,8 @@ Example ~/.#{@@opts_file_name}:
 
   def move_messages uids, destination, expunge = true
     return if uids.empty?
-    log "COPY [...#{uids.size} uids]"
+    verb = expunge ? "MOVE" : "COPY"
+    log "%s %d uids to %s:" % [verb, uids.size, destination}
 
     begin
       imap.copy uids, destination unless noop?
