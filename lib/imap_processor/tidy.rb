@@ -94,7 +94,7 @@ class IMAPProcessor::Tidy < IMAPProcessor
         end
 
       log "EXPUNGE"
-      imap.expunge if move
+      imap.expunge if move unless noop?
     end
   end
 end
