@@ -1,3 +1,18 @@
+=== 1.8.0 / 2023-01-09
+
+* 1 major enhancement:
+
+  * Added imap_tidy, a hybrid between cleanse and archive.
+
+* 1 minor enhancement:
+
+  * Added Time.imapdate(s), Time.imapdatetime(s), and #yyyy_mm.
+
+* 2 bug fixes:
+
+  * Fixes for net/imap changes in ruby 3.x.
+  * Removed unused last_month from IMAPProcessor::Archive
+
 === 1.7 / 2020-06-04
 
 * 4 minor enhancements:
@@ -100,4 +115,3 @@
 
 * 1 major enhancement
   * Birthday!
-

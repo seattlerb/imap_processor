@@ -28,7 +28,7 @@ class IMAPProcessor
   ##
   # The version of IMAPProcessor you are using
 
-  VERSION = "1.7"
+  VERSION = "1.8.0"
 
   ##
   # Base IMAPProcessor error class
