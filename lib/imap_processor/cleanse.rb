@@ -52,7 +52,7 @@ imap_cleanse removes old messages from your IMAP mailboxes.
   # selected mailbox (see Net::IMAP#select).
 
   def find_messages
-    mailbox = @boxes.find { |box| @mailbox =~ /#{box}/ } # TODO: needs more work
+    mailbox = @boxes.find { |box| @mailbox =~ /#{Regexp.escape box}/ }
     raise unless mailbox
     age = @cleanse[mailbox]
     before_date = (Time.now - 86400 * age).imapdate
