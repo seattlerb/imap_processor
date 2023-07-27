@@ -1,3 +1,9 @@
+=== 1.8.1 / 2023-07-27
+
+* 1 bug fix:
+
+  * Cleanse: Use Regexp.escape when searching mailboxen.
+
 === 1.8.0 / 2023-01-09
 
 * 1 major enhancement:
