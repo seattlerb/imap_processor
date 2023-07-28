@@ -14,6 +14,7 @@ manipulate IMAP mailboxes in several different ways:
 
 imap_archive  :: Archives old messages to a new dated mailbox.
 imap_cleanse  :: Delete messages older than a certain age in specified mailboxes.
+imap_tidy     :: Archive + Cleanse: Moves older messages to a dated mailbox.
 imap_flag     :: Flag messages to/from certain people.
 imap_idle     :: Shows new messages in a mailbox.
 imap_keywords :: Queries an IMAP server for keywords set on messages
