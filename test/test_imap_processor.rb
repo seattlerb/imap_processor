@@ -27,7 +27,7 @@ require 'time'
 #
 #   test:test:<your uid>:<your gid>::/path/to/your/home/dovecot
 
-class TestIMAPProcessor < MiniTest::Unit::TestCase
+class TestIMAPProcessor < Minitest::Test
 
   def setup
     host, port, username, password = 'localhost', 143, 'test', 'test'
