@@ -5,8 +5,6 @@ require 'net/imap/date'
 require 'imap_sasl_plain'
 require 'yaml'
 
-Net::IMAP::Authenticators.send :public, :authenticators
-
 ##
 # IMAPProcessor is a client for processing messages on an IMAP server.
 #
@@ -24,6 +22,11 @@ Net::IMAP::Authenticators.send :public, :authenticators
 #      imap: http://www.ietf.org/rfc/rfc3501.txt
 
 class IMAPProcessor
+
+  NEWER = Net::IMAP::VERSION > "0.4"
+
+  Net::IMAP::Authenticators.send :public, :authenticators if
+    Net::IMAP::Authenticators.private_method_defined? :authenticators
 
   ##
   # The version of IMAPProcessor you are using
@@ -61,6 +64,11 @@ class IMAPProcessor
   # Net::IMAP connection, set this via #initialize
 
   attr_reader :imap
+
+  ##
+  # Was --verbose used?
+
+  attr_accessor :verbose
 
   ##
   # Options Hash from process_args
@@ -212,8 +220,13 @@ class IMAPProcessor
           options[:Password] = password
         end
 
-        authenticators = Net::IMAP.authenticators
-        auth_types = authenticators.keys.sort.join ', '
+        auth_class = NEWER ? Net::IMAP::SASL : Net::IMAP
+
+        authenticators = auth_class.authenticators
+
+        auth_names = NEWER ? authenticators.names : authenticators.keys
+
+        auth_types = auth_names.sort.join ', '
         opts.on("-a", "--auth AUTH", auth_types,
                 "IMAP authentication type override",
                 "Authentication type will be auto-",
@@ -389,7 +402,7 @@ Example ~/.#{@@opts_file_name}:
 
     auth_caps = capabilities.select { |c| c =~ /^AUTH/ }
 
-    if auth.nil? then
+    unless auth then
       raise "Couldn't find a supported auth type" if auth_caps.empty?
       auth = auth_caps.first.sub(/AUTH=/, '')
     end
