@@ -83,7 +83,7 @@ class IMAPProcessor::Client < IMAPProcessor
   # with PLAIN auth on SSL sockets, sorry.
 
   def connect(host, port, ssl, username, password, auth = nil)
-    @imap = Net::IMAP.new host, port, ssl, nil, false
+    @imap = Net::IMAP.new host, port: port, ssl: ssl
     log "Connected to #{host}:#{port}"
 
     if auth.nil? then
@@ -109,8 +109,9 @@ class IMAPProcessor::Client < IMAPProcessor
       return []
     end
 
-    mailboxes.reject! { |mailbox| mailbox.attr.include? :Noselect }
-    mailboxes.map! { |mailbox| mailbox.name }
+    mailboxes = mailboxes
+                  .reject { |mailbox| mailbox.attr.include? :Noselect }
+                  .map(&:name)
 
     @box_re = /^#{Regexp.escape @root}#{Regexp.union(*@boxes)}/
 

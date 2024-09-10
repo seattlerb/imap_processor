@@ -393,7 +393,7 @@ Example ~/.#{@@opts_file_name}:
               username = @options[:Username],
               password = @options[:Password],
               auth = @options[:Auth]) # :yields: Connection
-    imap = Net::IMAP.new host, port, ssl, nil, false
+    imap = Net::IMAP.new host, port:port, ssl:ssl
     log "Connected to imap://#{host}:#{port}/"
 
     capabilities = capability imap, imap.greeting
