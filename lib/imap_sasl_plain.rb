@@ -35,9 +35,11 @@ class Net::IMAP::PlainAuthenticator
 end unless defined? Net::IMAP::PlainAuthenticator
 
 if defined? OpenSSL then
+  old, $-w = $-w, nil
   if Net::IMAP::SASL.respond_to?(:add_authenticator) then
     Net::IMAP::SASL.add_authenticator 'PLAIN', Net::IMAP::PlainAuthenticator
   else
     Net::IMAP.add_authenticator 'PLAIN', Net::IMAP::PlainAuthenticator
   end
+  $-w = old
 end
