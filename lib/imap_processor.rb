@@ -444,7 +444,7 @@ Example ~/.#{@@opts_file_name}:
   def create_mailbox name
     log "LIST #{name}"
     list = imap.list '', name
-    return if list
+    return if list && !list.empty?
     log "CREATE #{name}"
     imap.create name unless noop?
   end
@@ -593,7 +593,7 @@ Example ~/.#{@@opts_file_name}:
   def show_messages(uids)
     return if uids.nil? or (Array === uids and uids.empty?)
 
-    fetch_data = 'BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT)]'
+    fetch_data = +'BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT)]'
     messages = imap.fetch uids, fetch_data
     fetch_data.sub! '.PEEK', '' # stripped by server
 
