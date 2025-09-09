@@ -1,3 +1,18 @@
+=== 1.9.0 / 2025-09-09
+
+* 1 minor enhancement:
+
+  * Added verbose accessors to IMAPProcessor.
+
+* 6 bug fixes:
+
+  * Fixed bug in IMAPProcessor#create_mailbox w/ newer versions of Net::IMAP.
+  * Fixed bug with frozen string literals.
+  * Fixed deprecation warnings instantiating Net::IMAP w/ newer versions.
+  * Fixed to work with Net::IMAP::SASL.
+  * Fixed to work with newer vensions of Net::IMAP.
+  * Removed warnings loading/configuring Net::IMAP::SASL.
+
 === 1.8.1 / 2023-07-27
 
 * 1 bug fix:
