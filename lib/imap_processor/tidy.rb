@@ -40,6 +40,7 @@ class IMAPProcessor::Tidy < IMAPProcessor
   def initialize options # :nodoc:
     super
 
+    log ""
     log "Tidy: #{options[:Host]}"
 
     self.move = options[:move]
