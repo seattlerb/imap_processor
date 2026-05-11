@@ -128,7 +128,7 @@ class IMAPProcessor
     @@opts_file_name = File.basename processor_file, '.rb'
     @@opts_file_name = "imap_#{@@opts_file_name}" unless
       @@opts_file_name =~ /^imap_/
-    opts_file = File.expand_path "~/.#{@@opts_file_name}"
+    opts_file = ENV["IMAP_CONF"] || File.expand_path("~/.#{@@opts_file_name}")
 
     if required_options then
       required_options.each do |option, (default, message)|
